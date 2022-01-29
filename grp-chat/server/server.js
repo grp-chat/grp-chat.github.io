@@ -2,6 +2,7 @@ const http = require ('http');
 const express = require('express');
 const socketio = require('socket.io');
 const PORT = process.env.PORT || 8080;
+const RpsGame = require('./rps-game');
 
 const app = express();
 
@@ -13,9 +14,17 @@ app.use(express.static(clientPath));
 const server = http.createServer(app);
 const io = socketio(server);
 
+let waitingPlayer = null;
+
 io.on('connection', (sock) => {
-    console.log('Someone connected');
-    sock.emit('message', 'You are connected to the server');
+    
+    if (waitingPlayer) {
+        new RpsGame(waitingPlayer, sock);
+        waitingPlayer = null;
+    } else {
+        waitingPlayer = sock;
+        waitingPlayer.emit('message', 'Waiting for an opponent');
+    }
 
     sock.on('message', (text) => {
         io.emit('message', text);

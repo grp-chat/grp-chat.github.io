@@ -17,11 +17,24 @@ const onFormSubmitted = (e) => {
     const text = input.value;
     input.value = '';
 
-    sock.emit('message', text);
+    sock.emit('message', text); 
 };
-writeEvent('Welcome to Group Chat');
+
+const addButtonListeners = () => {
+    ['rock', 'paper', 'scissors'].forEach((id) => {
+        const button = document.getElementById(id);
+        button.addEventListener('click', () => {
+            sock.emit('turn', id);
+        });
+    });
+
+};
+
+writeEvent('Rock, Paper, Scissors Game');
 
 const sock = io();
 sock.on('message', writeEvent);
 
 document.querySelector('#chat-form').addEventListener('submit', onFormSubmitted);
+
+addButtonListeners();
